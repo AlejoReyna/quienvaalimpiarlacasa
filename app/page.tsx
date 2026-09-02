@@ -1,16 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Plus, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 const SHUFFLE_DURATION = 5000;
 const TICK_DURATION = 360;
@@ -87,6 +81,8 @@ export default function Home() {
   const [floatingNames, setFloatingNames] = useState<FloatingName[]>([]);
   const [isShuffling, setIsShuffling] = useState(false);
   const [hasResult, setHasResult] = useState(false);
+  const [questionFontSize, setQuestionFontSize] = useState<number | null>(null);
+  const questionRef = useRef<HTMLSpanElement | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -96,6 +92,40 @@ export default function Home() {
   const showsOrderTitle = isShuffling || hasResult;
   const titleKey =
     intro === 'hello' ? 'hello' : showsOrderTitle ? 'order' : 'question';
+
+  useLayoutEffect(() => {
+    const question = questionRef.current;
+
+    if (!question) return;
+
+    const fitQuestion = () => {
+      const currentFontSize = question.style.fontSize;
+      question.style.fontSize = '';
+
+      const baseFontSize = Number.parseFloat(getComputedStyle(question).fontSize);
+      const availableWidth = question.clientWidth;
+      const contentWidth = question.scrollWidth;
+      const fittedFontSize =
+        contentWidth > availableWidth
+          ? (baseFontSize * availableWidth) / contentWidth
+          : null;
+
+      question.style.fontSize = currentFontSize;
+      setQuestionFontSize((current) => {
+        if (fittedFontSize === null) return current === null ? current : null;
+        if (current !== null && Math.abs(current - fittedFontSize) < 0.5) {
+          return current;
+        }
+        return fittedFontSize;
+      });
+    };
+
+    const observer = new ResizeObserver(fitQuestion);
+    observer.observe(question);
+    fitQuestion();
+
+    return () => observer.disconnect();
+  }, [action, intro, showsOrderTitle]);
 
   useEffect(() => {
     const introTimeout = setTimeout(() => setIntro('ready'), 1400);
@@ -172,7 +202,15 @@ export default function Home() {
             ) : showsOrderTitle ? (
               'El orden es'
             ) : (
-              <span className="flex flex-nowrap items-baseline justify-center gap-x-[0.12em] whitespace-nowrap sm:gap-x-[0.16em]">
+              <span
+                ref={questionRef}
+                className="flex w-full flex-nowrap items-baseline justify-center gap-x-[0.12em] whitespace-nowrap sm:gap-x-[0.16em]"
+                style={
+                  questionFontSize === null
+                    ? undefined
+                    : { fontSize: `${questionFontSize}px` }
+                }
+              >
                 <span className="shrink-0">¿Quién va a</span>
                 <Input
                   value={action}
@@ -285,21 +323,6 @@ export default function Home() {
                 {isShuffling ? 'Mezclando…' : 'Mezclar'}
               </Button>
             </div>
-            <TooltipProvider delay={120}>
-              <Tooltip>
-                <TooltipTrigger className="mt-4 border-0 bg-transparent p-0 text-[11px] font-medium text-black/40 underline decoration-black/20 underline-offset-4 outline-none transition-colors hover:text-black focus-visible:text-black">
-                  Cómo funciona
-                </TooltipTrigger>
-                <TooltipContent
-                  side="bottom"
-                  sideOffset={8}
-                  className="max-w-64 rounded-xl bg-black px-3 py-2 text-center leading-5 text-white"
-                >
-                  Mezcla los nombres durante 5 segundos y aplica Fisher–Yates con
-                  aleatorización del navegador para crear el orden final.
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
         )}
       </div>
