@@ -192,10 +192,10 @@ export default function Home() {
   return (
     <main className="flex min-h-dvh items-center justify-center bg-white px-5 py-10 text-center text-black sm:px-8">
       <div className="w-full max-w-[520px]">
-        <div className="relative flex min-h-24 items-center justify-center sm:min-h-32">
+        <div className="relative left-1/2 flex min-h-24 w-[calc(100vw-2.5rem)] -translate-x-1/2 items-center justify-center sm:min-h-32">
           <h1
             key={titleKey}
-            className="intro-fade text-balance text-[clamp(2.6rem,9vw,5rem)] font-semibold leading-none tracking-[-0.065em]"
+            className="intro-fade w-full min-w-0 text-balance text-[clamp(2.6rem,9vw,5rem)] font-semibold leading-none tracking-[-0.065em]"
           >
             {intro === 'hello' ? (
               'Hola.'
