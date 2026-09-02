@@ -172,8 +172,8 @@ export default function Home() {
             ) : showsOrderTitle ? (
               'El orden es'
             ) : (
-              <span className="flex flex-wrap items-baseline justify-center gap-x-[0.16em] gap-y-2">
-                <span>¿Quién va a</span>
+              <span className="flex flex-nowrap items-baseline justify-center gap-x-[0.12em] whitespace-nowrap sm:gap-x-[0.16em]">
+                <span className="shrink-0">¿Quién va a</span>
                 <Input
                   value={action}
                   onChange={(event) => updateAction(event.target.value)}
@@ -183,10 +183,15 @@ export default function Home() {
                   maxLength={28}
                   style={{
                     width: `${Math.min(Math.max(action.length + 1, 3.5), 13)}ch`,
+                    fontFamily: 'inherit',
+                    fontSize: 'inherit',
+                    fontWeight: 'inherit',
+                    letterSpacing: 'inherit',
+                    lineHeight: 'inherit',
                   }}
-                  className="inline-block h-[1.02em] min-w-[3.5ch] max-w-[13ch] rounded-none border-0 border-b border-black/35 bg-transparent px-0 py-0 text-center text-[inherit] font-[inherit] leading-none tracking-[inherit] shadow-none placeholder:text-black/20 focus-visible:border-black/35 focus-visible:ring-0"
+                  className="inline-block h-[1.02em] min-w-[3.5ch] shrink-0 max-w-[13ch] rounded-none border-0 border-b border-black/35 bg-transparent px-0 py-0 text-center leading-none shadow-none placeholder:text-black/20 focus-visible:border-black/35 focus-visible:ring-0"
                 />
-                <span>?</span>
+                <span className="shrink-0">?</span>
               </span>
             )}
           </h1>
