@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Plus, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -81,8 +81,6 @@ export default function Home() {
   const [floatingNames, setFloatingNames] = useState<FloatingName[]>([]);
   const [isShuffling, setIsShuffling] = useState(false);
   const [hasResult, setHasResult] = useState(false);
-  const [questionFontSize, setQuestionFontSize] = useState<number | null>(null);
-  const questionRef = useRef<HTMLSpanElement | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -92,40 +90,6 @@ export default function Home() {
   const showsOrderTitle = isShuffling || hasResult;
   const titleKey =
     intro === 'hello' ? 'hello' : showsOrderTitle ? 'order' : 'question';
-
-  useLayoutEffect(() => {
-    const question = questionRef.current;
-
-    if (!question) return;
-
-    const fitQuestion = () => {
-      const currentFontSize = question.style.fontSize;
-      question.style.fontSize = '';
-
-      const baseFontSize = Number.parseFloat(getComputedStyle(question).fontSize);
-      const availableWidth = question.clientWidth;
-      const contentWidth = question.scrollWidth;
-      const fittedFontSize =
-        contentWidth > availableWidth
-          ? (baseFontSize * availableWidth) / contentWidth
-          : null;
-
-      question.style.fontSize = currentFontSize;
-      setQuestionFontSize((current) => {
-        if (fittedFontSize === null) return current === null ? current : null;
-        if (current !== null && Math.abs(current - fittedFontSize) < 0.5) {
-          return current;
-        }
-        return fittedFontSize;
-      });
-    };
-
-    const observer = new ResizeObserver(fitQuestion);
-    observer.observe(question);
-    fitQuestion();
-
-    return () => observer.disconnect();
-  }, [action, intro, showsOrderTitle]);
 
   useEffect(() => {
     const introTimeout = setTimeout(() => setIntro('ready'), 1400);
@@ -202,34 +166,28 @@ export default function Home() {
             ) : showsOrderTitle ? (
               'El orden es'
             ) : (
-              <span
-                ref={questionRef}
-                className="flex w-full flex-nowrap items-baseline justify-center gap-x-[0.12em] whitespace-nowrap sm:gap-x-[0.16em]"
-                style={
-                  questionFontSize === null
-                    ? undefined
-                    : { fontSize: `${questionFontSize}px` }
-                }
-              >
+              <span className="flex w-full max-w-full flex-wrap items-baseline justify-center gap-x-[0.12em] gap-y-1 sm:gap-x-[0.16em] sm:gap-y-2">
                 <span className="shrink-0">¿Quién va a</span>
-                <Input
-                  value={action}
-                  onChange={(event) => updateAction(event.target.value)}
-                  placeholder="..."
-                  aria-label="Acción para repartir"
-                  autoComplete="off"
-                  maxLength={28}
-                  style={{
-                    width: `${Math.min(Math.max(action.length + 1, 3.5), 13)}ch`,
-                    fontFamily: 'inherit',
-                    fontSize: 'inherit',
-                    fontWeight: 'inherit',
-                    letterSpacing: 'inherit',
-                    lineHeight: 'inherit',
-                  }}
-                  className="inline-block h-[1.02em] min-w-[3.5ch] shrink-0 max-w-[13ch] rounded-none border-0 border-b border-black/35 bg-transparent px-0 py-0 text-center leading-none shadow-none placeholder:text-black/20 focus-visible:border-black/35 focus-visible:ring-0"
-                />
-                <span className="shrink-0">?</span>
+                <span className="inline-flex max-w-full shrink-0 items-baseline gap-x-[0.12em] sm:gap-x-[0.16em]">
+                  <Input
+                    value={action}
+                    onChange={(event) => updateAction(event.target.value)}
+                    placeholder="..."
+                    aria-label="Acción para repartir"
+                    autoComplete="off"
+                    maxLength={28}
+                    style={{
+                      width: `${Math.min(Math.max(action.length + 1, 3.5), 13)}ch`,
+                      fontFamily: 'inherit',
+                      fontSize: 'inherit',
+                      fontWeight: 'inherit',
+                      letterSpacing: 'inherit',
+                      lineHeight: 'inherit',
+                    }}
+                    className="inline-block h-[1.02em] min-w-[3.5ch] max-w-[calc(100vw-3.5rem)] rounded-none border-0 border-b border-black/35 bg-transparent px-0 py-0 text-center leading-none shadow-none placeholder:text-black/20 focus-visible:border-black/35 focus-visible:ring-0"
+                  />
+                  <span className="shrink-0">?</span>
+                </span>
               </span>
             )}
           </h1>
